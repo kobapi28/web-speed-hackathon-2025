@@ -15,10 +15,11 @@ declare global {
   var __staticRouterHydrationData: HydrationState;
 }
 
-function main() {
-  const store = createStore({});
-  const router = createBrowserRouter(createRoutes(store), {});
 
+const store = createStore({});
+const router = createBrowserRouter(createRoutes(store), {});
+
+document.addEventListener('DOMContentLoaded', () => {
   hydrateRoot(
     document,
     <StrictMode>
@@ -27,6 +28,4 @@ function main() {
       </StoreProvider>
     </StrictMode>,
   );
-}
-
-document.addEventListener('DOMContentLoaded', main);
+});
