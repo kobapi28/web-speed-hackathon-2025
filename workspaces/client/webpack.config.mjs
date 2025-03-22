@@ -1,6 +1,7 @@
 import path from 'node:path';
 
 import webpack from 'webpack';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 /** @type {import('webpack').Configuration} */
 const config = {
@@ -66,6 +67,7 @@ const config = {
     // API_BASE_URL: APIのベースURLを '/api' に設定
     // NODE_ENV: 環境変数を空文字列にデフォルト設定
     new webpack.EnvironmentPlugin({ API_BASE_URL: '/api', NODE_ENV: '' }),
+    process.env['ANALYZE'] && new BundleAnalyzerPlugin(),
   ],
   resolve: {
     alias: {
