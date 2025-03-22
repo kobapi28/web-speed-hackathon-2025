@@ -59,7 +59,12 @@ const config = {
     publicPath: 'auto',
   },
   plugins: [
-    new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
+    // LimitChunkCountPlugin: チャンク数を制限するプラグイン
+    new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 10 }),
+    
+    // EnvironmentPlugin: 環境変数を定義するプラグイン
+    // API_BASE_URL: APIのベースURLを '/api' に設定
+    // NODE_ENV: 環境変数を空文字列にデフォルト設定
     new webpack.EnvironmentPlugin({ API_BASE_URL: '/api', NODE_ENV: '' }),
   ],
   resolve: {
