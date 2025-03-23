@@ -510,24 +510,25 @@ export async function registerApi(app: FastifyInstance): Promise<void> {
       });
 
       // modules データの description を 100文字に切り落とす
-      const formattedModules = modules.map(module => ({
-        ...module,
-        items: module.items.map(item => {
-          return {
-            ...item,
-            series: {
-              ...item.series,
-              description: item.series?.description.slice(0, 100),
-            },
-            episode: {
-              ...item.episode,
-              description: item.episode?.description.slice(0, 100),
-            },
-          }
-        })
-      }));
+      // const formattedModules = modules.map(module => ({
+      //   ...module,
+      //   items: module.items.map(item => {
+      //     return {
+      //       ...item,
+      //       series: {
+      //         ...item.series,
+      //         description: item.series?.description.slice(0, 100),
+      //       },
+      //       episode: {
+      //         ...item.episode,
+      //         description: item.episode?.description.slice(0, 100),
+      //       },
+      //     }
+      //   })
+      // }));
 
-      reply.code(200).send(formattedModules);
+      // reply.code(200).send(formattedModules);
+      reply.code(200).send(modules);
     },
   });
 
