@@ -517,11 +517,22 @@ export async function registerApi(app: FastifyInstance): Promise<void> {
             ...item,
             series: item.series ? {
               ...item.series,
-              description: item.series?.description.slice(0, 100) ?? '',
+              episodes: item.series.episodes.map(episode => ({
+                ...episode,
+                description: episode.description.slice(0, 100) ?? '',
+              })),
+              description: item.series.description.slice(0, 100) ?? '',
             } : null,
             episode: item.episode ? {
               ...item.episode,
-              description: item.episode?.description.slice(0, 100) ?? '',
+              series: item.episode.series ? {
+                ...item.episode.series,
+                episodes: item.episode.series.episodes.map(episode => ({
+                  ...episode,
+                  description: episode.description.slice(0, 100) ?? '',
+                })),
+              } : null,
+              description: item.episode.description.slice(0, 100) ?? '',
             } : null,
           }
         })
