@@ -469,7 +469,6 @@ export async function registerApi(app: FastifyInstance): Promise<void> {
     handler: async function getRecommendedModules(req, reply) {
       const database = getDatabase();
 
-      // メインモジュールクエリ
       const modules = await database.query.recommendedModule.findMany({
         orderBy(module, { asc }) {
           return asc(module.order);
@@ -481,97 +480,54 @@ export async function registerApi(app: FastifyInstance): Promise<void> {
           items: {
             orderBy(item, { asc }) {
               return asc(item.order);
-            }
-          }
-        }
+            },
+            with: {
+              series: {
+                with: {
+                  episodes: {
+                    orderBy(episode, { asc }) {
+                      return asc(episode.order);
+                    },
+                  },
+                },
+              },
+              episode: {
+                with: {
+                  series: {
+                    with: {
+                      episodes: {
+                        orderBy(episode, { asc }) {
+                          return asc(episode.order);
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       });
 
-      // 必要なIDを収集
-      const seriesIds = new Set(
-        modules.flatMap(m => 
-          m.items
-            .map(i => i.seriesId)
-            .filter((id): id is string => id !== null)
-        )
-      );
-
-      const episodeIds = new Set(
-        modules.flatMap(m => 
-          m.items
-            .map(i => i.episodeId)
-            .filter((id): id is string => id !== null)
-        )
-      );
-
-      // シリーズデータを別クエリで取得
-      const seriesData = seriesIds.size > 0 
-        ? await database.query.series.findMany({
-            where(series, { inArray }) {
-              return inArray(series.id, Array.from(seriesIds));
-            },
-            with: {
-              episodes: {
-                orderBy(episode, { asc }) {
-                  return asc(episode.order);
-                }
-              }
-            }
-          })
-        : [];
-
-      // エピソードデータを別クエリで取得
-      const episodeData = episodeIds.size > 0
-        ? await database.query.episode.findMany({
-            where(episode, { inArray }) {
-              return inArray(episode.id, Array.from(episodeIds));
-            },
-            with: {
-              series: true
-            }
-          })
-        : [];
-
-      // データをマップに変換
-      // const seriesMap = new Map(
-      //   seriesData.map(s => [
-      //     s.id,
-      //     {
-      //       ...s,
-      //       description: s.description.slice(0, 200),
-      //       episodes: s.episodes.map(e => ({
-      //         ...e,
-      //         description: e.description.slice(0, 200)
-      //       }))
-      //     }
-      //   ])
-      // );
-      // const episodeMap = new Map(
-      //   episodeData.map(e => [
-      //     e.id,
-      //     {
-      //       ...e,
-      //       description: e.description.slice(0, 200),
-      //       series: {
-      //         ...e.series,
-      //         description: e.series.description.slice(0, 200),
-      //       }
-      //     }
-      //   ])
-      // );
-      const seriesMap = new Map(seriesData.map(s => [s.id, s]));
-      const episodeMap = new Map(episodeData.map(e => [e.id, e]));
-
-      // モジュールのitemsにデータを追加
-      const enrichedModules = modules.map(module => ({
+      // modules データの description を 100文字に切り落とす
+      const formattedModules = modules.map(module => ({
         ...module,
-        items: module.items.map(item => ({
-          ...item,
-          series: item.seriesId ? seriesMap.get(item.seriesId) : null,
-          episode: item.episodeId ? episodeMap.get(item.episodeId) : null
-        }))
+        items: module.items.map(item => {
+          return {
+            ...item,
+            series: {
+              ...item.series,
+              description: item.series?.description.slice(0, 100),
+            },
+            episode: {
+              ...item.episode,
+              description: item.episode?.description.slice(0, 100),
+            },
+          }
+        })
       }));
 
-      reply.code(200).send(enrichedModules);
+      reply.code(200).send(formattedModules);
     },
   });
 
