@@ -532,32 +532,34 @@ export async function registerApi(app: FastifyInstance): Promise<void> {
         : [];
 
       // データをマップに変換
-      const seriesMap = new Map(
-        seriesData.map(s => [
-          s.id,
-          {
-            ...s,
-            description: s.description ? s.description.slice(0, 200) : '',
-            episodes: s.episodes.map(e => ({
-              ...e,
-              description: e.description ? e.description.slice(0, 200) : ''
-            }))
-          }
-        ])
-      );
-      const episodeMap = new Map(
-        episodeData.map(e => [
-          e.id,
-          {
-            ...e,
-            description: e.description ? e.description.slice(0, 200) : '',
-            series: {
-              ...e.series,
-              description: e.series.description ? e.series.description.slice(0, 200) : '',
-            }
-          }
-        ])
-      );
+      // const seriesMap = new Map(
+      //   seriesData.map(s => [
+      //     s.id,
+      //     {
+      //       ...s,
+      //       description: s.description.slice(0, 200),
+      //       episodes: s.episodes.map(e => ({
+      //         ...e,
+      //         description: e.description.slice(0, 200)
+      //       }))
+      //     }
+      //   ])
+      // );
+      // const episodeMap = new Map(
+      //   episodeData.map(e => [
+      //     e.id,
+      //     {
+      //       ...e,
+      //       description: e.description.slice(0, 200),
+      //       series: {
+      //         ...e.series,
+      //         description: e.series.description.slice(0, 200),
+      //       }
+      //     }
+      //   ])
+      // );
+      const seriesMap = new Map(seriesData.map(s => [s.id, s]));
+      const episodeMap = new Map(episodeData.map(e => [e.id, e]));
 
       // モジュールのitemsにデータを追加
       const enrichedModules = modules.map(module => ({
